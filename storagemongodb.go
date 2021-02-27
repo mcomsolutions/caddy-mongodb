@@ -47,12 +47,12 @@ const (
 	DefaultKeyPrefix = "caddytls"
 
 	// DefaultValuePrefix sets a prefix to KV values to check validation
-	DefaultValuePrefix = "caddy-storage-redis"
+	DefaultValuePrefix = "caddy-storage-MongoDb"
 
-	// DefaultMongoDbHost define the Redis instance host
+	// DefaultMongoDbHost define the MongoDb instance host
 	DefaultMongoDbHost = "127.0.0.1"
 
-	// DefaultMongoDbPort define the Redis instance port
+	// DefaultMongoDbPort define the MongoDb instance port
 	DefaultMongoDbPort = "27017"
 
 	// DefaultDatabase define the mongo database
@@ -61,58 +61,61 @@ const (
 	// DefaultCollection define the mongo database collection
 	DefaultMongoDbBucket = "caddycollection"
 
-	// DefaultMongoDbPassword define the Redis instance Username, if any
+	// DefaultMongoDbPassword define the MongoDb instance Username, if any
 	DefaultMongoDbUsername = ""
 
-	// DefaultMongoDbPassword define the Redis instance password, if any
+	// DefaultMongoDbPassword define the MongoDb instance password, if any
 	DefaultMongoDbPassword = ""
 
-	// DefaultRedisTimeout define the Redis wait time in (s)
-	DefaultRedisTimeout = 5
+	// DefaultMongoDbTimeout define the MongoDb wait time in (s)
+	DefaultMongoDbTimeout = 5
 
-	// DefaultRedisTLS define the Redis TLS connection
-	DefaultRedisTLS = false
+	// DefaultMongoDbTLS define the MongoDb TLS connection
+	DefaultMongoDbTLS = false
 
-	// DefaultRedisTLSInsecure define the Redis TLS connection
-	DefaultRedisTLSInsecure = true
+	// DefaultMongoDbTLSInsecure define the MongoDb TLS connection
+	DefaultMongoDbTLSInsecure = true
 
 	// Environment Name
 
-	// EnvNameRedisHost defines the env variable name to override Redis host
-	EnvNameRedisHost = "CADDY_CLUSTERING_REDIS_HOST"
+	// EnvNameMongoDbHost defines the env variable name to override MongoDb host
+	EnvNameMongoDbHost = "CADDY_CLUSTERING_MONGODB_HOST"
 
-	// EnvNameRedisPort defines the env variable name to override Redis port
-	EnvNameRedisPort = "CADDY_CLUSTERING_REDIS_PORT"
+	// EnvNameMongoDBPort defines the env variable name to override MongoDb port
+	EnvNameMongoDBPort = "CADDY_CLUSTERING_MONGODB_PORT"
 
-	// EnvNameRedisDB defines the env variable name to override Redis db number
-	EnvNameRedisDB = "CADDY_CLUSTERING_REDIS_DB"
+	// EnvNameMongoDBDatabase defines the env variable name to override MongoDb db number
+	EnvNameMongoDBDatabase = "CADDY_CLUSTERING_MONGODB_DB"
 
-	// EnvNameRedisUsername defines the env variable name to override Redis username
-	EnvNameRedisUsername = "CADDY_CLUSTERING_REDIS_USERNAME"
+	// EnvNameMongoDBBucketName define the env variable name to
+	EnvNameMongoDBBucketName = "CADDY_CLUSTERING_MONGODB_BUCKET_NAME"
 
-	// EnvNameRedisPassword defines the env variable name to override Redis password
-	EnvNameRedisPassword = "CADDY_CLUSTERING_REDIS_PASSWORD"
+	// EnvNameMongoDbUsername defines the env variable name to override MongoDb username
+	EnvNameMongoDbUsername = "CADDY_CLUSTERING_MONGODB_USERNAME"
 
-	// EnvNameRedisTimeout defines the env variable name to override Redis wait timeout for dial, read, write
-	EnvNameRedisTimeout = "CADDY_CLUSTERING_REDIS_TIMEOUT"
+	// EnvNameMongoDbPassword defines the env variable name to override MongoDb password
+	EnvNameMongoDbPassword = "CADDY_CLUSTERING_MONGODB_PASSWORD"
+
+	// EnvNameMongoDbTimeout defines the env variable name to override MongoDb wait timeout for dial, read, write
+	EnvNameMongoDbTimeout = "CADDY_CLUSTERING_MONGODB_TIMEOUT"
 
 	// EnvNameAESKey defines the env variable name to override AES key
-	EnvNameAESKey = "CADDY_CLUSTERING_REDIS_AESKEY"
+	EnvNameAESKey = "CADDY_CLUSTERING_MONGODB_AESKEY"
 
 	// EnvNameKeyPrefix defines the env variable name to override KV key prefix
-	EnvNameKeyPrefix = "CADDY_CLUSTERING_REDIS_KEYPREFIX"
+	EnvNameKeyPrefix = "CADDY_CLUSTERING_MONGODB_KEYPREFIX"
 
 	// EnvNameValuePrefix defines the env variable name to override KV value prefix
-	EnvNameValuePrefix = "CADDY_CLUSTERING_REDIS_VALUEPREFIX"
+	EnvNameValuePrefix = "CADDY_CLUSTERING_MONGODB_VALUEPREFIX"
 
-	// EnvNameTLSEnabled defines the env variable name to whether enable Redis TLS Connection or not
-	EnvNameTLSEnabled = "CADDY_CLUSTERING_REDIS_TLS"
+	// EnvNameTLSEnabled defines the env variable name to whether enable MongoDb TLS Connection or not
+	EnvNameTLSEnabled = "CADDY_CLUSTERING_MONGODB_TLS"
 
-	// EnvNameTLSInsecure defines the env variable name to whether verify Redis TLS Connection or not
-	EnvNameTLSInsecure = "CADDY_CLUSTERING_REDIS_TLS_INSECURE"
+	// EnvNameTLSInsecure defines the env variable name to whether verify MongoDb TLS Connection or not
+	EnvNameTLSInsecure = "CADDY_CLUSTERING_MONGODB_TLS_INSECURE"
 )
 
-// StorageMongodb contain Redis client, and plugin option
+// StorageMongodb contain MongoDb client, and plugin option
 type StorageMongodb struct {
 	ClientMongo *mongo.Client
 	lockManager *lock.Client
@@ -146,7 +149,7 @@ func init() {
 	caddy.RegisterModule(StorageMongodb{})
 }
 
-// register caddy module with ID caddy.storage.redis
+// register caddy module with ID caddy.storage.MongoDb
 func (StorageMongodb) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID: "caddy.storage.storagemongodb",
@@ -170,7 +173,6 @@ func (rd *StorageMongodb) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			continue
 		}
 
-		rd.Logger.Info("MongoDb. La llave es: " + key + ", su valor son: " + value)
 		switch key {
 		case "host":
 			if value != "" {
@@ -214,10 +216,10 @@ func (rd *StorageMongodb) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				if err == nil {
 					rd.Timeout = timeParse
 				} else {
-					rd.Timeout = DefaultRedisTimeout
+					rd.Timeout = DefaultMongoDbTimeout
 				}
 			} else {
-				rd.Timeout = DefaultRedisTimeout
+				rd.Timeout = DefaultMongoDbTimeout
 			}
 		case "key_prefix":
 			if value != "" {
@@ -243,10 +245,10 @@ func (rd *StorageMongodb) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				if err == nil {
 					rd.TlsEnabled = tlsParse
 				} else {
-					rd.TlsEnabled = DefaultRedisTLS
+					rd.TlsEnabled = DefaultMongoDbTLS
 				}
 			} else {
-				rd.TlsEnabled = DefaultRedisTLS
+				rd.TlsEnabled = DefaultMongoDbTLS
 			}
 		case "tls_insecure":
 			if value != "" {
@@ -254,10 +256,10 @@ func (rd *StorageMongodb) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				if err == nil {
 					rd.TlsInsecure = tlsInsecureParse
 				} else {
-					rd.TlsInsecure = DefaultRedisTLSInsecure
+					rd.TlsInsecure = DefaultMongoDbTLSInsecure
 				}
 			} else {
-				rd.TlsInsecure = DefaultRedisTLSInsecure
+				rd.TlsInsecure = DefaultMongoDbTLSInsecure
 			}
 		}
 	}
@@ -283,16 +285,16 @@ func (rd *StorageMongodb) GetConfigValue() {
 	rd.Logger.Debugf("GetConfigValue [%s]:%s", "pre", rd)
 	rd.Logger.Info("Estoy en la funcion GetConfigValue. Esta funcion se tiene que recodificar")
 
-	rd.Host = configureString(rd.Host, EnvNameRedisHost, DefaultMongoDbHost)
-	rd.Username = configureString(rd.Username, EnvNameRedisUsername, DefaultMongoDbUsername)
-	rd.Password = configureString(rd.Password, EnvNameRedisPassword, DefaultMongoDbPassword)
-	rd.Port = configureString(rd.Port, EnvNameRedisPort, DefaultMongoDbPort)
-	rd.DataBaseName = configureString(rd.DataBaseName, EnvNameRedisDB, DefaultMongoDbDatabase)
-	rd.BucketName = configureString(rd.BucketName, EnvNameRedisDB, DefaultMongoDbBucket)
+	rd.Host = configureString(rd.Host, EnvNameMongoDbHost, DefaultMongoDbHost)
+	rd.Username = configureString(rd.Username, EnvNameMongoDbUsername, DefaultMongoDbUsername)
+	rd.Password = configureString(rd.Password, EnvNameMongoDbPassword, DefaultMongoDbPassword)
+	rd.Port = configureString(rd.Port, EnvNameMongoDBPort, DefaultMongoDbPort)
+	rd.DataBaseName = configureString(rd.DataBaseName, EnvNameMongoDBDatabase, DefaultMongoDbDatabase)
+	rd.BucketName = configureString(rd.BucketName, EnvNameMongoDBBucketName, DefaultMongoDbBucket)
 
-	rd.Timeout = configureInt(rd.Timeout, EnvNameRedisTimeout, DefaultRedisTimeout)
-	rd.TlsEnabled = configureBool(rd.TlsEnabled, EnvNameTLSEnabled, DefaultRedisTLS)
-	rd.TlsInsecure = configureBool(rd.TlsInsecure, EnvNameTLSInsecure, DefaultRedisTLSInsecure)
+	rd.Timeout = configureInt(rd.Timeout, EnvNameMongoDbTimeout, DefaultMongoDbTimeout)
+	rd.TlsEnabled = configureBool(rd.TlsEnabled, EnvNameTLSEnabled, DefaultMongoDbTLS)
+	rd.TlsInsecure = configureBool(rd.TlsInsecure, EnvNameTLSInsecure, DefaultMongoDbTLSInsecure)
 	rd.KeyPrefix = configureString(rd.KeyPrefix, EnvNameKeyPrefix, DefaultKeyPrefix)
 	rd.ValuePrefix = configureString(rd.ValuePrefix, EnvNameValuePrefix, DefaultValuePrefix)
 	rd.AesKey = configureString(rd.AesKey, EnvNameAESKey, DefaultAESKey)
@@ -328,7 +330,7 @@ func (rd *StorageMongodb) BuildMongoDbClient() error {
 	/**
 	 * En el siguiente bloque conecto a mongodb
 	 */
-	rd.ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
+	rd.ctx, _ = context.WithTimeout(context.Background(), time.Duration(rd.Timeout)*time.Second)
 	err = MongodbClient.Connect(rd.ctx)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database %s", ConnectionString)
@@ -342,34 +344,6 @@ func (rd *StorageMongodb) BuildMongoDbClient() error {
 	rd.lockManager = c
 	rd.locks = &sync.Map{}
 	return nil
-
-	/*
-		redisClient := redis.NewClient(&redis.Options{
-			Addr:         rd.Address,
-			Username:     rd.Username,
-			Password:     rd.Password,
-			DB:           rd.DB,
-			DialTimeout:  time.Second * time.Duration(rd.Timeout),
-			ReadTimeout:  time.Second * time.Duration(rd.Timeout),
-			WriteTimeout: time.Second * time.Duration(rd.Timeout),
-		})
-
-		if rd.TlsEnabled {
-			redisClient.Options().TLSConfig = &tls.Config{
-				InsecureSkipVerify: rd.TlsInsecure,
-			}
-		}
-
-		_, err := redisClient.Ping(rd.ctx).Result()
-		if err != nil {
-			return err
-		}
-
-		rd.Client = redisClient
-		rd.ClientLocker = redislock.New(rd.Client)
-		rd.locks = make(map[string]*redislock.Lock)
-		return nil
-	*/
 }
 
 // Store values at key
@@ -554,55 +528,6 @@ func (rd StorageMongodb) List(prefix string, recursive bool) ([]string, error) {
 		fmt.Printf("%s\n", keysFound[i])
 	}
 	return keysFound, nil
-
-	/*
-		// first SCAN command
-		keys, pointer, err := rd.Client.Scan(rd.ctx, pointer, search, ScanCount).Result()
-		if err != nil {
-			return keysFound, err
-		}
-		// store it temporarily
-		tempKeys = append(tempKeys, keys...)
-		// because SCAN command doesn't always return all possible, keep searching until pointer is equal to the firstPointer
-		for pointer != firstPointer {
-			keys, nextPointer, _ := rd.Client.Scan(rd.ctx, pointer, search, ScanCount).Result()
-			tempKeys = append(tempKeys, keys...)
-			pointer = nextPointer
-		}
-
-		if prefix == "*" || len(strings.TrimSpace(prefix)) == 0 {
-			search = rd.KeyPrefix
-		} else {
-			search = rd.prefixKey(prefix)
-		}
-
-		// remove default prefix from keys
-		for _, key := range tempKeys {
-			if strings.HasPrefix(key, search) {
-				key = strings.TrimPrefix(key, rd.KeyPrefix+"/")
-				keysFound = append(keysFound, key)
-			}
-		}
-
-		// if recursive wanted, or wildcard/empty prefix, just return all keys prefix is empty
-		if recursive || prefix == "*" || len(strings.TrimSpace(prefix)) == 0 {
-			return keysFound, nil
-		}
-
-		// for non-recursive split path and look for unique keys just under given prefix
-		keysMap := make(map[string]bool)
-		for _, key := range keysFound {
-			dir := strings.Split(strings.TrimPrefix(key, prefix+"/"), "/")
-			keysMap[dir[0]] = true
-		}
-
-		keysFound = make([]string, 0)
-		for key := range keysMap {
-			keysFound = append(keysFound, path.Join(prefix, key))
-		}
-
-		return keysFound, nil
-	*/
 }
 
 // Stat returns information about key.
@@ -621,7 +546,7 @@ func (rd StorageMongodb) Stat(key string) (certmagic.KeyInfo, error) {
 	}, nil
 }
 
-// getData return data from redis by key as it is
+// getData return data from MongoDb by key as it is
 func (rd StorageMongodb) getData(key string) ([]byte, error) {
 	fileBuffer := bytes.NewBuffer(nil)
 	bucket, err := rd.getBucket()
@@ -637,20 +562,6 @@ func (rd StorageMongodb) getData(key string) ([]byte, error) {
 		return nil, certmagic.ErrNotExist(fmt.Errorf("key %s does not exist", key))
 	}
 	return fileBuffer.Bytes(), nil
-
-	/*
-		log.Printf("Write file to DB was successful. File size: %d \n", fileSize)
-
-		data, err := rd.Client.Get(rd.ctx, rd.prefixKey(key)).Bytes()
-
-		if err != nil {
-			return nil, fmt.Errorf("unable to obtain data for %s: %v", key, err)
-		} else if data == nil {
-			return nil, certmagic.ErrNotExist(fmt.Errorf("key %s does not exist", key))
-		}
-
-		return data, nil
-	*/
 }
 
 // getDataDecrypted return StorageData by key
@@ -671,30 +582,22 @@ func (rd StorageMongodb) getDataDecrypted(key string) (*StorageData, error) {
 func (rd StorageMongodb) Lock(ctx context.Context, key string) error {
 	lockName := rd.prefixKey(key) + ".lock"
 
-	rd.Logger.Infof("La llave para el lock que me piden es: %s", key)
 	if lockID, exists := rd.locks.Load(key); exists {
 		var f lock.Filter
 		f.LockId = lockID.(string)
-		rd.Logger.Infof("Encontre el lockid el cual es: %s", f.LockId)
 		LockStatus, err := rd.lockManager.Status(rd.ctx, f)
 		if err != nil {
 			return fmt.Errorf("There is an error try to get lock %s whit the key %s", err.Error(), key)
 		}
-		rd.Logger.Infof("Tengo el lockStatus para la llave %s \n", key)
-		rd.Logger.Infof("La longitud del lockStatus: %d", len(LockStatus))
 		if len(LockStatus) > 0 {
-			rd.Logger.Infof("El TTL es : %d", LockStatus[0].TTL)
-
 			if LockStatus[0].TTL > 0 {
 				rd.Logger.Infof("Estoy en el bloque que tengo que renovar el lock")
 				_, err := rd.lockManager.Renew(rd.ctx, f.LockId, LockDuration)
 				if err != nil {
 					return err
 				}
-				rd.Logger.Infof("Voy a regresar indicando que tengo el lock. Lo acabo de renovar")
 				return nil
 			} else if LockStatus[0].TTL <= 0 {
-				rd.Logger.Infof("Estoy en el bloque que tengo liberar el lock")
 				rd.lockManager.Unlock(rd.ctx, f.LockId)
 				rd.locks.Delete(key)
 			}
@@ -704,9 +607,6 @@ func (rd StorageMongodb) Lock(ctx context.Context, key string) error {
 	var LockDetails lock.LockDetails
 	LockDetails.TTL = LockDuration
 	LockDetails.Host = rd.IPAddress.String()
-
-	rd.Logger.Infof("El id del lock que voy a crear es: %s para la llave %s", LockID, key)
-
 	err := rd.lockManager.XLock(rd.ctx, lockName, LockID, LockDetails)
 	if err != nil {
 		return fmt.Errorf("can't obtain lock, it still being held by other, %v. The lock id with fail is: %s", err, LockID)
@@ -727,8 +627,49 @@ func (rd StorageMongodb) Unlock(key string) error {
 	return nil
 }
 
+/**
+ * Regresa la llave para encriptacion como un arreglo de bytes
+ */
 func (rd *StorageMongodb) GetAESKeyByte() []byte {
 	return []byte(rd.AesKey)
+}
+
+/**
+ * La utilizo para recuperar el bucket que se utiliza para guardar la informacion de los certificados en la base de datos
+ */
+func (rd StorageMongodb) getBucket() (*gridfs.Bucket, error) {
+	db := rd.ClientMongo.Database(rd.DataBaseName)
+	opt := options.GridFSBucket().SetName(rd.BucketName)
+	bucket, err := gridfs.NewBucket(db, opt)
+	return bucket, err
+}
+
+/**
+ * Crea el lockEngine para poder utilizarlo
+ */
+func (rd StorageMongodb) getLockEngine() (*lock.Client, error) {
+	db := rd.ClientMongo.Database(rd.DataBaseName)
+	col := db.Collection(rd.BucketName + ".lock")
+
+	c := lock.NewClient(col)
+	err := c.CreateIndexes(rd.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+/**
+ * Recupera la direccion ip utilizada para conectarse al exteriror
+ */
+func (rd StorageMongodb) GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP
 }
 
 // interface guard
@@ -786,39 +727,4 @@ func configureString(value string, envVariableName string, valueDefault string) 
 		}
 	}
 	return valueDefault
-}
-
-/**
- * La utilizo para recuperar el bucket que se utiliza para guardar la informacion de los certificados en la base de datos
- */
-func (rd StorageMongodb) getBucket() (*gridfs.Bucket, error) {
-	db := rd.ClientMongo.Database(rd.DataBaseName)
-	opt := options.GridFSBucket().SetName(rd.BucketName)
-	bucket, err := gridfs.NewBucket(db, opt)
-	return bucket, err
-}
-
-/**
- * Crea el lockEngine para poder utilizarlo
- */
-func (rd StorageMongodb) getLockEngine() (*lock.Client, error) {
-	db := rd.ClientMongo.Database(rd.DataBaseName)
-	col := db.Collection(rd.BucketName + ".lock")
-
-	c := lock.NewClient(col)
-	err := c.CreateIndexes(rd.ctx)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
-}
-
-func (rd StorageMongodb) GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP
 }
