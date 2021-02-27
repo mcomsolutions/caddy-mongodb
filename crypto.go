@@ -9,7 +9,7 @@ import (
 	"io"
 )
 
-func (rd *RedisStorage) encrypt(bytes []byte) ([]byte, error) {
+func (rd *StorageMongodb) encrypt(bytes []byte) ([]byte, error) {
 	// No key? No encrypt
 	if len(rd.AesKey) == 0 {
 		return bytes, nil
@@ -35,7 +35,7 @@ func (rd *RedisStorage) encrypt(bytes []byte) ([]byte, error) {
 }
 
 // EncryptStorageData encrypt storage data, so it won't be plain data
-func (rd *RedisStorage) EncryptStorageData(data *StorageData) ([]byte, error) {
+func (rd *StorageMongodb) EncryptStorageData(data *StorageData) ([]byte, error) {
 	// JSON marshal, then encrypt if key is there
 	bytes, err := json.Marshal(data)
 	if err != nil {
@@ -47,7 +47,7 @@ func (rd *RedisStorage) EncryptStorageData(data *StorageData) ([]byte, error) {
 	return rd.encrypt(bytes)
 }
 
-func (rd *RedisStorage) decrypt(bytes []byte) ([]byte, error) {
+func (rd *StorageMongodb) decrypt(bytes []byte) ([]byte, error) {
 	// No key? No decrypt
 	if len(rd.AesKey) == 0 {
 		return bytes, nil
@@ -75,7 +75,7 @@ func (rd *RedisStorage) decrypt(bytes []byte) ([]byte, error) {
 }
 
 // DecryptStorageData decrypt storage data, so we can read it
-func (rd *RedisStorage) DecryptStorageData(bytes []byte) (*StorageData, error) {
+func (rd *StorageMongodb) DecryptStorageData(bytes []byte) (*StorageData, error) {
 	// We have to decrypt if there is an AES key and then JSON unmarshal
 	bytes, err := rd.decrypt(bytes)
 	if err != nil {
